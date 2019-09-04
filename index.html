@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style type="text/css">
+			* {margin: 0;padding: 0;}
+			li{list-style: none;}
+			div {
+				width: 800px;
+				height: 400px;
+				position: absolute;
+				left: 0;
+				top: 0;
+				bottom: 0;
+				right: 0;
+				margin:auto;
+				overflow: hidden;
+			}
+			div ul {
+				width: 400px;
+				height: 2800px;
+				position: absolute;
+			}
+			div ul li {
+				width: 800px;
+				height: 400px;
+				float: left;
+			}
+			div ul li a {
+				text-decoration: none;
+			}
+			div ul li a img {
+				width: 800px;
+				height: 400px;
+			}
+			div #Left {
+				text-decoration: none;
+				position: absolute;
+				top: 50%;
+				margin-top: -10px;
+				height: 40px;
+				line-height: 32px;
+				text-align: center;
+				width: 40px;
+				font-size: 40px;
+				vertical-align: middle;
+				color: #fff;background: rgba(0,0,0,0.5);
+				left: 0;
+			}
+			div #Right {
+				text-decoration: none;
+				position: absolute;
+				top: 50%;
+				margin-top: -10px;
+				height: 40px;
+				line-height: 32px;
+				text-align: center;
+				width: 40px;
+				font-size: 40px;
+				vertical-align: middle;
+				color: #fff;
+				background: rgba(0,0,0,0.5);
+				right: 0;
+			}
+			div ol {
+				position: absolute;
+				right: 20px;
+				bottom:20px;
+				display: flex;
+				align-items: center;
+				cursor: pointer;
+			}
+			div ol li {
+				height: 20px;
+				width: 20px;
+				background-color: #fff;
+				background: rgba(255,255,255,0.5);
+				text-align: center;
+				line-height: 20px;
+				margin-left: 8px;
+				font-size: 12px;
+			}
+			div ol li.ac {
+				background-color: black;
+				color: #fff;
+			}
+			div>a {
+				cursor: pointer;
+			}
+		</style>
+	</head>
+	<body>
+	<div>
+		<ul>
+			<li><a href=""><img src="6.jpg" alt=""></a></li>
+			<li><a href=""><img src="1.jpg" alt=""></a></li>
+			<li><a href=""><img src="2.jpg" alt=""></a></li>
+			<li><a href=""><img src="3.jpg" alt=""></a></li>
+			<li><a href=""><img src="4.jpg" alt=""></a></li>
+			<li><a href=""><img src="5.jpg" alt=""></a></li>
+			<li><a href=""><img src="6.jpg" alt=""></a></li>
+			<li><a href=""><img src="1.jpg" alt=""></a></li>
+		</ul>
+		<ol>
+			
+		</ol>
+		<a id="Left">&laquo;</a>
+		<a id="Right">&raquo;</a>
+	</div>
+	<script type="text/javascript">
+		class carousel{
+			constructor(selector){
+				this.isElement=document.querySelector(selector);
+				this.olLis=[];//存放ollis的空数组
+				this.seek();
+				this.liBtn();
+				this.autoPaly();
+				this.chu();
+				this.ru();
+				this.n=0;//记录开始坐标
+				this.m=0;//延迟坐标
+			}
+			//找寻元素
+			seek(){
+				this.ul=this.isElement.querySelector("ul");
+				this.ol=this.isElement.querySelector("ol");
+				this.Left=this.isElement.querySelector("#Left");
+				this.Right=this.isElement.querySelector("#Right");
+				this.uls=this.ul.querySelectorAll("li");
+			}
+			//循环创建ol的li 
+			liBtn(){
+				for(let i=0; i<=this.uls.length-3; i++){
+					var li=document.createElement("li");
+					li.innerText=i+1;
+					if(i === 0)li.classList.add("ac");
+					this.ol.appendChild(li);
+					this.olLis.push(li);	
+				}
+				this.olLisClick();
+				this.LeftMove();
+				this.RightMove();
+			}
+			
+			//给ol的li绑定事件
+			olLisClick(){
+				for(let i=0; i < this.olLis.length; i++){
+					this.olLis[i].onclick = () => {
+						this.n=i;
+						this.change();
+						this.m=this.n;
+					}
+				}
+			}
+			//Left移动
+			LeftMove(){
+				this.Left.onclick=()=>{
+					this.n--;
+					if(this.n<0){
+						this.n=this.olLis.length-1;
+						this.ul.style.top= -(this.olLis.length+1)*400+"px";
+					}
+					this.change();
+					this.m=this.n;
+				}
+			}
+			//Right移动
+			RightMove(){
+				this.Right.onclick=()=>{
+					this.n++;
+					if(this.n==this.uls.length-2){
+						this.n=0;
+						this.ul.style.top=0;
+					}
+					this.change();
+					this.m=this.n;
+				}
+			}
+			change(){
+				this.olLis[this.m].classList.remove("ac");
+				this.olLis[this.n].classList.add("ac");
+				//console.log(this.n)
+				this.move(this.ul,'top',-(this.n+1)*400)
+			}
+			move(obj,attr,end){
+				clearInterval(obj.timer);
+				
+				let start = parseInt(this.getStyle(obj, attr));
+				
+				obj.timer = setInterval(function () {
+					let distance = end - start;
+					let speed = distance > 0 ? Math.ceil(distance / 10) : Math.floor(distance / 10);
+					start += speed;
+					obj.style[attr] = start + "px";
+					if(start === end) {
+						clearInterval(obj.timer);
+					}
+				}, 20);
+			}
+			
+			getStyle(obj, attr) {
+				return obj.currentStyle ? obj.currentStyle[attr] : getComputedStyle(obj, false)[attr];
+			}
+			
+			autoPaly(){
+			this.timer=setInterval(function(){
+					this.Right.onclick();
+					}.bind(this),2500)
+			}
+			ru(){
+				this.isElement.onmouseenter=()=>{
+				clearInterval(this.timer);
+				}
+			}
+			chu(){
+				this.isElement.onmouseleave=()=>{
+				this.autoPaly();
+				}
+			}
+		}
+		new carousel("div");
+		</script>
+	</body>
+</html>
+
